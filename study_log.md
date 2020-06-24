@@ -68,6 +68,7 @@ class Cat(Animal):
 ## 获取对象信息
 
 ### Why
+
 当我们拿到一个对象的引用时，如何知道这个对象是什么类型、有哪些方法呢？
 
 ### type()
@@ -156,7 +157,7 @@ class Student(object):
 
 ## 给实例/class动态绑定属性和方法
 
-**给实例绑定一个属性：**
+给**实例**绑定一个**属性**：
 
 ```python
 >>> class Student(object):
@@ -167,7 +168,7 @@ class Student(object):
 Michael
 ```
 
-还可以尝试给实例绑定一个方法：
+还可以尝试给**实例**绑定一个**方法**：
 
 ```python
 >>> def set_age(self, age): # 定义一个函数作为实例方法
@@ -180,7 +181,7 @@ Michael
 25
 ```
 
-**为了给所有实例都绑定方法，可以给class绑定方法：**
+为了给所有实例都绑定方法，可以给**class**绑定**方法**：
 
 ```python
 >>> def set_score(self, score):
@@ -309,4 +310,58 @@ Chain().users('michael').repos
 Step 5：
 print(Chain().users('michael').repos) = print(trinew)  #由于我们定义了__str__()方法，那么打印的时候就会调用此方法，据此方法的定义，打印回来的是trinew的__path属#性，即——\users\michael\repos  。至此，我们也把所有定义的有特殊用的方法都用上了，完毕。
 ```
+
+### 枚举类
+
+枚举类型可以看作是一种标签或是一系列常量的集合，通常用于表示某些特定的有限集合，例如星期、月份、状态等。在没有专门提供枚举类型的时候我们是怎么做呢，一般就通过字典或类来实现：
+
+```
+Color = {
+    'RED'  : 1,
+    'GREEN': 2,
+    'BLUE' : 3,
+}
+
+class Color:
+    RED   = 1
+    GREEN = 2
+    BLUE  = 3
+```
+
+这种来实现枚举如果小心翼翼地使用当然没什么问题，毕竟是一种妥协的解决方案。它的隐患在于可以被修改。
+
+更好的方式是使用标准库提供的 `Enum` 类型，官方库值得信赖。3.4 之前的版本也可以通过 `pip install enum` 下载支持的库。简单的示例：
+
+```
+from enum import Enum
+class Color(Enum):
+    red = 1
+    green = 2
+    blue = 3
+```
+
+如果不赋值，则`value`属性则是自动赋给成员的`int`常量，默认从`1`开始计数。
+
+如果需要更精确地控制枚举类型，可以从`Enum`派生出自定义类：
+
+```
+from enum import Enum, unique
+
+@unique
+class Weekday(Enum):
+    Sun = 0 # Sun的value被设定为0
+    Mon = 1
+    Tue = 2
+    Wed = 3
+    Thu = 4
+    Fri = 5
+    Sat = 6
+```
+
+**定义枚举时，成员名不允许重复**
+
+**成员值允许相同，第二个成员的名称被视作第一个成员的别名**
+
+**若要不能定义相同的成员值，可以通过 `@unique` 装饰**
+
 
