@@ -2128,4 +2128,137 @@ Python的分布式进程接口简单，封装良好，适合需要把繁重任�
 注意Queue的作用是用来传递任务和接收结果，每个任务的描述数据量要尽量小。比如发送一个处理日志文件的任务，就不要发送几百兆的日志文件本身，而是发送日志文件存放的完整路径，由Worker进程再去共享的磁盘上读取文件。
 
 
+# numpy中的轴（axis）如何理解
 
+
+由此可以看出：通过不同的axis，numpy会沿着不同的方向进行操作：如果不设置，那么对所有的元素操作；如果axis=0，则沿着纵轴进行操作；axis=1，则沿着横轴进行操作。但这只是简单的二位数组，如果是多维的呢？
+
+## **可以总结为一句话：设axis=i，则numpy沿着第i个下标变化的方向进行操作。**
+
+例子：
+
+```python
+data =[[a00, a01],
+       [a10, a11]]
+```
+
+所以axis=0时，沿着第0个下标变化的方向进行操作，也就是a\[0][0]->a\[1][0], a\[0][1]->a\[1][1]，也就是纵坐标的方向，axis=1时也类似。
+————————————————
+# [Numpy中Meshgrid函数介绍及2种应用场景](https://www.cnblogs.com/lemonbit/p/7593898.html)
+
+## Meshgrid函数的基本用法
+
+在Numpy的官方文章里，meshgrid函数的英文描述也显得文绉绉的，理解起来有些难度。
+可以这么理解，meshgrid函数用两个坐标轴上的点在平面上画网格。
+用法：
+　　[X,Y]=meshgrid(x,y)
+　　[X,Y]=meshgrid(x)与[X,Y]=meshgrid(x,x)是等同的
+　　[X,Y,Z]=meshgrid(x,y,z)生成三维数组，可用来计算三变量的函数和绘制三维立体图
+这里，主要以[X,Y]=meshgrid(x,y)为例，来对该函数进行介绍。
+[X,Y] = meshgrid(x,y) 将向量x和y定义的区域转换成矩阵X和Y,其中矩阵X的行向量是向量x的简单复制，而矩阵Y的列向量是向量y的简单复制(注：下面代码中X和Y均是数组，在文中统一称为矩阵了)。
+假设x是长度为m的向量，y是长度为n的向量，则最终生成的矩阵X和Y的维度都是 n*m （注意不是m*n）。
+
+
+文字描述可能不是太好理解，下面通过代码演示下：
+**加载数据**
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+m, n = (5, 3)
+x = np.linspace(0, 1, m)
+y = np.linspace(0, 1, n)
+X, Y = np.meshgrid(x,y)
+```
+
+**查看向量x和向量y**
+
+```python
+x
+out:
+array([ 0.  ,  0.25,  0.5 ,  0.75,  1.  ])
+y
+out:
+array([ 0. ,  0.5,  1. ])
+```
+
+**查看矩阵X和矩阵Y**
+
+```python
+X
+out:
+array([[ 0.  ,  0.25,  0.5 ,  0.75,  1.  ],
+       [ 0.  ,  0.25,  0.5 ,  0.75,  1.  ],
+       [ 0.  ,  0.25,  0.5 ,  0.75,  1.  ]])
+Y
+out:
+array([[ 0. ,  0. ,  0. ,  0. ,  0. ],
+       [ 0.5,  0.5,  0.5,  0.5,  0.5],
+       [ 1. ,  1. ,  1. ,  1. ,  1. ]])
+```
+
+**查看矩阵对应的维度**
+
+```python
+X.shape
+out:
+(3, 5)
+Y.shape
+out:
+(3, 5)
+```
+
+meshgrid函数的运行过程，可以通过下面的示意图来加深理解：
+
+![img](https://images2017.cnblogs.com/blog/1088672/201709/1088672-20170925204600792-247576997.jpg)
+![img](https://www.cnblogs.com/lemonbit/p/meshgrid.jpg)
+再者，也可以通过在matplotlib中进行可视化，来查看函数运行后得到的网格化数据的结果
+
+```python
+plt.plot(X, Y, marker='.', color='blue', linestyle='none')
+plt.show()
+```
+
+![img](https://www.cnblogs.com/lemonbit/p/result.png)
+
+![img](https://images2017.cnblogs.com/blog/1088672/201709/1088672-20170925204636510-1221245365.png)
+
+当然，我们也可以获得网格平面上坐标点的数据，如下：
+
+```python
+z = [i for i in zip(X.flat,Y.flat)]
+z
+out:
+[(0.0, 0.0),
+ (0.25, 0.0),
+ (0.5, 0.0),
+ (0.75, 0.0),
+ (1.0, 0.0),
+ (0.0, 0.5),
+ (0.25, 0.5),
+ (0.5, 0.5),
+ (0.75, 0.5),
+ (1.0, 0.5),
+ (0.0, 1.0),
+ (0.25, 1.0),
+ (0.5, 1.0),
+ (0.75, 1.0),
+ (1.0, 1.0)]
+```
+
+## Meshgrid函数的一些应用场景
+
+Meshgrid函数常用的场景有等高线绘制及机器学习中SVC超平面的绘制（二维场景下）。
+分别图示如下：
+（1）等高线
+
+![img](https://images2017.cnblogs.com/blog/1088672/201709/1088672-20170925204700495-1993825400.png)
+![img](https://www.cnblogs.com/lemonbit/p/contour.png)
+（2）SVC中超平面的绘制：
+![img](https://www.cnblogs.com/lemonbit/p/svc.png)
+
+![img](https://images2017.cnblogs.com/blog/1088672/201709/1088672-20170925204710214-743272974.png)
+
+关于场景（1）和场景（2），将在后续的文章里做进一步描述。
+当然，可能还有些其他场景，这里就不做进一步介绍了。
